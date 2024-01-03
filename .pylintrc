@@ -1,9 +1,8 @@
 [MASTER]
-ignore=CVS,.git,.venv,.env,.env2,.tox,dist,doc,*egg
-; extension-pkg-whitelist=
+ignore = CVS, .git, .venv, .env, .env2, .tox, dist, doc, *egg
 
 [MESSAGES CONTROL]
-disable=
+disable =
     C0111,  # C0111: Missing module docstring
     C0116,  # C0116: Missing function docstring
     ; C0301,  # C0301: Line too long (flake8's job)
@@ -12,33 +11,30 @@ disable=
     ; W0511,  # W0511: TODO (we're all adults here)
 
 [REPORTS]
-reports=y
-output-format=colorized
-
-# Include the message ID for easy blacklisting
-; msg-template={msg_id}:{line:3d},{column}: {obj}: {msg}
+reports = y
+output-format = colorized
 
 [BASIC]
 # Allow single-letter variable names (for unit tests)
-variable-rgx=[a-z_][a-z0-9_]{0,20}$
+variable-rgx = [a-z_][a-z0-9_]{0,20}$
 
 # Allow single-letter argument names (for unit tests)
-; argument-rgx=[a-z_][a-z0-9_]{0,30}$
+; argument-rgx = [a-z_][a-z0-9_]{0,30}$
 
 # Allow 3+ character and test suite method names
-; method-rgx=([a-z_][a-z0-9_]{2,40}|GET|HEAD|PUT|POST|DELETE|setUp|tearDown)$
+; method-rgx = ([a-z_][a-z0-9_]{2,40}|GET|HEAD|PUT|POST|DELETE|setUp|tearDown)$
 
 # Don't require docstrings for magic methods and test suite classes/methods
-; no-docstring-rgx=((__.*__)|((.*_)?[tT]est.*)|([mM]ock.*)|setUp|tearDown)$
+; no-docstring-rgx = ((__.*__)|((.*_)?[tT]est.*)|([mM]ock.*)|setUp|tearDown)$
 
 # Constants can be BLA_BLA or logger
-; const-rgx=(([A-Z_][A-Z0-9_]*)|(__.*__)|logger)$
+; const-rgx = (([A-Z_][A-Z0-9_]*)|(__.*__)|logger)$
 
 [DESIGN]
-; max-args=10
+; max-args = 10
 
 # (R0903) Some special classes might use only magic methods
-; min-public-methods=0
+; min-public-methods = 0
 
 # (R0904) TestCase inheritance means ~45 public methods for starters
-; max-public-methods=20
+; max-public-methods = 20
