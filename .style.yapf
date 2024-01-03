@@ -1,0 +1,36 @@
+[style]
+based_on_style = pep8
+column_limit = 100
+spaces_before_comment = 2
+
+arithmetic_precedence_indication = false
+spaces_around_power_operator = true
+space_between_ending_comma_and_closing_bracket = true
+blank_line_before_nested_class_or_def = false
+
+join_multiple_lines = false
+align_closing_bracket_with_visual_indent = true
+dedent_closing_brackets = false
+indent_closing_brackets = false
+# coalesce_brackets = true
+indent_dictionary_value = true
+indent_blank_lines = false
+
+# split_all_comma_separated_values = false
+# split_all_top_level_comma_separated_values = false
+split_before_bitwise_operator = true
+split_before_logical_operator = true
+split_before_first_argument = false
+split_before_closing_bracket = true
+split_before_dict_set_generator = true
+split_before_dot = true
+split_before_named_assigns = true
+split_complex_comprehension = true
+split_penalty_comprehension = 2100
+# split_penalty_after_opening_bracket = 0
+# split_penalty_before_if_expr = 30
+split_penalty_for_added_line_split = 30
+
+disable_ending_comma_heuristic = false
+
+# blank_lines_between_top_level_imports_and_variables = 1
