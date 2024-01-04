@@ -76,12 +76,14 @@ def iso_duration_to_seconds(iso_duration: str) -> float:
     return delta.total_seconds()
 
 
-def list_all(svc, properties=None, **kwargs):
+def list_all(resource, properties=None, **kwargs) -> list:
+    """Returns a list of records for a given YT resource, with automatic pagination."""
+
     properties = properties or 'snippet'
     if 'maxResults' not in kwargs:
         kwargs['maxResults'] = MAX_PAGE_SIZE
 
-    request = svc.list(part=properties, **kwargs)
+    request = resource.list(part=properties, **kwargs)
 
     page_num = 0
     records = []
@@ -93,12 +95,14 @@ def list_all(svc, properties=None, **kwargs):
         for item in response['items']:
             records.append(item)
 
-        request = svc.list_next(request, response)
+        request = resource.list_next(request, response)
 
     return records
 
 
-def get_playlists(youtube: googleapiclient.discovery.Resource):
+def get_playlists(youtube: googleapiclient.discovery.Resource) -> dict[str, dict]:
+    """Return a dict of all playlists, using the ID as the key, and returned data as the value."""
+
     playlists = {}
     for playlist in list_all(youtube.playlists(), properties='snippet,contentDetails', mine=True):
         playlists[playlist['id']] = playlist
@@ -107,6 +111,8 @@ def get_playlists(youtube: googleapiclient.discovery.Resource):
 
 
 def get_playlist_items(playlist_id: str, youtube: googleapiclient.discovery.Resource):
+    """Return a list of all items within the given playlist ID."""
+
     return list_all(
         youtube.playlistItems(),
         playlistId=playlist_id,
@@ -114,7 +120,22 @@ def get_playlist_items(playlist_id: str, youtube: googleapiclient.discovery.Reso
     )
 
 
-def get_videos(video_ids: list[str], youtube: googleapiclient.discovery.Resource):
+def get_videos(video_ids: list[str],
+               youtube: googleapiclient.discovery.Resource) -> dict[str, dict]:
+    """Return details for the given video IDs, with automatic chunking/batching when needed.
+
+    YouTube only allows you to provide a list that does not exceed their maximum page size of 50,
+    so sometimes separating a larger list into batches may be necessary. This function aims to
+    handle that completely transparently to the callsite.
+
+    This allows a virtually unlimited number of IDs to be provided, as long as the caller is
+    willing to wait for all of them to complete, since everything is returned in one dict.
+
+    TODO: possibly make this an iterator, or a separate iterator version, since we can do some
+    work asynchronously. Regardless of whether the YT API client is asyncio compatible, we can at
+    least do parts of our work between batches.
+    """
+
     properties = 'snippet,contentDetails,statistics'
     vid_svc = youtube.videos()
     videos = {}
@@ -126,10 +147,6 @@ def get_videos(video_ids: list[str], youtube: googleapiclient.discovery.Resource
         chunk_end = chunk_start + chunk_count
         chunk_ids = video_ids[chunk_start:chunk_end]
         vid_ids_str = ','.join(chunk_ids)
-
-        # print(f'Chunking IDs [{chunk_start}, {chunk_end}]')
-        # print(f'  {chunk_ids}')
-        # print(f'  {vid_ids_str}')
 
         for item in list_all(vid_svc, id=vid_ids_str, properties=properties,
                              maxResults=chunk_count):
