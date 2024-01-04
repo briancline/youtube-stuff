@@ -1,4 +1,6 @@
 # import argparse
+import os
+import pathlib
 import sys
 
 import rich.console
@@ -26,6 +28,7 @@ def main():
     # parser = argparse.ArgumentParser()
     # parser.add_argument('-p', '--playlist-id', required=False)
     # args = parser.parse_args()
+    data_dir = pathlib.Path(os.path.dirname(__file__)) / 'data'
     youtube = ytutil.youtube_init('creds-user.json')
 
     print_info('Retrieving playlists')
@@ -33,7 +36,7 @@ def main():
     playlists = sorted(playlists, key=lambda x: x['snippet']['title'].strip().lower())
 
     print_info(f'Archiving list of {len(playlists)} playlists')
-    ytutil.save_json_file(playlists, 'data/playlists.json')
+    ytutil.save_playlists(playlists, data_dir, overwrite=True)
 
     all_videos = {}
     all_video_ids = []
@@ -45,7 +48,7 @@ def main():
         pl_items = ytutil.get_playlist_items(pl_id, youtube)
 
         print_detail(f'  - Archiving metadata for {len(pl_items)} playlist items')
-        ytutil.save_json_file(pl_items, f'data/playlist-items-{pl_id}.json')
+        ytutil.save_playlist_items(pl_id, pl_items, data_dir, overwrite=True)
 
         for vid_id in [x['contentDetails']['videoId'] for x in pl_items]:
             all_video_ids.append(vid_id)
@@ -58,7 +61,7 @@ def main():
     for vid_id, vid in all_videos.items():
         vid_title = truncate_title(vid['snippet']['title'], 60)
         print_detail(f'  - [{vid_id}] {vid_title}')
-        ytutil.save_json_file(vid, f'data/videos/video-{vid_id}.json')
+        ytutil.save_video_meta(vid, data_dir, overwrite=False)
 
     unavail_count = len(all_video_ids) - len(all_videos)
     print_info(f'Archived metadata for {len(playlists)} playlists, {len(all_videos)} videos. '

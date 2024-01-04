@@ -30,9 +30,32 @@ def youtube_init(creds_file: pathlib.Path):
     return googleapiclient.discovery.build(API_SERVICE_NAME, API_VERSION, credentials=creds)
 
 
-def save_json_file(obj, file_path: pathlib.Path):
+def save_json_file(obj, file_path: pathlib.Path, overwrite: bool = True, make_dirs: bool = True):
+    if not overwrite and file_path.exists():
+        return
+
+    if make_dirs:
+        file_path.parent.mkdir(parents=True, exist_ok=True)
+
+    print(f'  - Saving {file_path}')
     with open(file_path, 'w', encoding='utf-8') as fd:
         json.dump(obj, fd, indent=2)
+
+
+def save_playlists(playlists: list, data_dir: pathlib.Path, overwrite: bool = True):
+    pllist_path = data_dir / 'playlists.json'
+    return save_json_file(playlists, pllist_path, overwrite=overwrite)
+
+
+def save_playlist_items(pl_id: str, items: list, data_dir: pathlib.Path, overwrite: bool = True):
+    items_path = data_dir / 'playlists' / f'playlist-items-{pl_id}.json'
+    return save_json_file(items, items_path, overwrite=overwrite)
+
+
+def save_video_meta(meta: dict, data_dir: pathlib.Path, overwrite: bool = False):
+    vid_id = meta['id']
+    meta_path = data_dir / 'videos' / f'video-{vid_id}.json'
+    return save_json_file(meta, meta_path, overwrite=overwrite)
 
 
 def format_duration(seconds: float) -> str:
