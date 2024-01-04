@@ -37,7 +37,6 @@ def save_json_file(obj, file_path: pathlib.Path, overwrite: bool = True, make_di
     if make_dirs:
         file_path.parent.mkdir(parents=True, exist_ok=True)
 
-    print(f'  - Saving {file_path}')
     with open(file_path, 'w', encoding='utf-8') as fd:
         json.dump(obj, fd, indent=2)
 
@@ -100,11 +99,11 @@ def list_all(svc, properties=None, **kwargs):
 
 
 def get_playlists(youtube: googleapiclient.discovery.Resource):
-    return list_all(
-        youtube.playlists(),
-        properties='snippet,contentDetails',
-        mine=True,
-    )
+    playlists = {}
+    for playlist in list_all(youtube.playlists(), properties='snippet,contentDetails', mine=True):
+        playlists[playlist['id']] = playlist
+
+    return playlists
 
 
 def get_playlist_items(playlist_id: str, youtube: googleapiclient.discovery.Resource):
