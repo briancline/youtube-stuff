@@ -42,14 +42,14 @@ def test_api_request():
                                               API_VERSION,
                                               credentials=credentials)
 
-    channel = youtube.channels().list(mine=True, part='snippet').execute()
+    chan = youtube.channels().list(mine=True, part='snippet').execute()  # pylint: disable=no-member
 
     # Save credentials back to session in case access token was refreshed.
     # ACTION ITEM: In a production app, you likely want to save these
     #              credentials in a persistent database instead.
     flask.session['credentials'] = credentials_to_dict(credentials)
 
-    return flask.jsonify(**channel)
+    return flask.jsonify(**chan)
 
 
 @app.route('/authorize')
@@ -93,8 +93,8 @@ def oauth2callback():
     flow.redirect_uri = flask.url_for('oauth2callback', _external=True)
 
     # Use the authorization server's response to fetch the OAuth 2.0 tokens.
-    authorization_response = flask.request.url
-    flow.fetch_token(authorization_response=authorization_response)
+    authz_response = flask.request.url
+    flow.fetch_token(authorization_response=authz_response)
 
     # Store credentials in the session.
     # ACTION ITEM: In a production app, you likely want to save these
@@ -127,18 +127,17 @@ def revoke():
                          headers={'content-type': 'application/x-www-form-urlencoded'},
                          timeout=30)
 
-    status_code = getattr(resp, 'status_code')
-    if status_code == 200:
-        return ('Credentials successfully revoked.' + print_index_table())
-    else:
-        return ('An error occurred.' + print_index_table())
+    if getattr(resp, 'status_code') != 200:
+        return 'An error occurred.' + print_index_table()
+
+    return 'Credentials successfully revoked.' + print_index_table()
 
 
 @app.route('/clear')
 def clear_credentials():
     if 'credentials' in flask.session:
         del flask.session['credentials']
-    return ('Credentials have been cleared.<br><br>' + print_index_table())
+    return 'Credentials have been cleared.<br><br>' + print_index_table()
 
 
 def credentials_to_dict(credentials):
