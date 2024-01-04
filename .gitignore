@@ -7,6 +7,9 @@ data/
 *.patch
 .ruff_cache/
 
+# VSCode
+*.code-workspace
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
